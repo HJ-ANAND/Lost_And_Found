@@ -1,4 +1,125 @@
+import React, { useState, useEffect } from "react";
+
+const API_KEY = "PUT_YOUR_API_KEY";
+
 function Home() {
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Simple useEffect to log description changes as requested
+  useEffect(() => {
+    if (description) {
+      console.log("Description updated:", description);
+    }
+  }, [description]);
+
+  const generateDescription = async () => {
+    if (!description.trim()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text:
+                      "Rewrite this into a proper, clear, and detailed lost item description. Don't include formatting like markdown: " +
+                      description,
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("API Error Response:", data);
+        return;
+      }
+
+      if (data.candidates && data.candidates.length > 0) {
+        const aiText = data.candidates[0].content.parts[0].text;
+        setDescription(aiText);
+      } else {
+        console.error("Unexpected API Response format:", data);
+        alert("Failed to generate description. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error generating description:", error);
+      alert("Error generating description.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateTitle = async () => {
+    if (!description.trim()) {
+      alert("Please generate or write a description first.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text:
+                      "Generate a short, catchy, and clean title (max 6-8 words) for this lost item description. Provide only the title, no quotes or extra text: " +
+                      description,
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("API Error Response:", data);
+        return;
+      }
+
+      if (data.candidates && data.candidates.length > 0) {
+        const aiTitle = data.candidates[0].content.parts[0].text;
+        setTitle(aiTitle);
+      } else {
+        console.error("Unexpected API Response format:", data);
+        alert("Failed to generate title. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error generating title:", error);
+      alert("Error generating title.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       {/* 1. HERO SECTION */}
@@ -12,7 +133,10 @@ function Home() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">
-          <button className="bg-black text-white px-8 py-3 rounded-full font-medium shadow-md hover:bg-gray-800 transition">
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-black text-white px-8 py-3 rounded-full font-medium shadow-md hover:bg-gray-800 transition"
+          >
             Report Lost Item
           </button>
           <button className="bg-white border text-gray-900 border-gray-300 px-8 py-3 rounded-full font-medium hover:bg-gray-50 transition">
@@ -20,6 +144,76 @@ function Home() {
           </button>
         </div>
       </section>
+
+      {/* AI FORM SECTION (Conditionally Rendered) */}
+      {showForm && (
+        <section className="mt-12 px-6 w-full max-w-2xl mx-auto animate-fade-in">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Report a Lost Item
+              </h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-gray-400 hover:text-gray-600 text-sm font-medium"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Description Input */}
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  What did you lose? (Write a rough idea first)
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full border border-gray-300 p-4 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition resize-none min-h-30"
+                  placeholder="e.g. black wallet near library yesterday"
+                ></textarea>
+                <button
+                  onClick={generateDescription}
+                  disabled={loading}
+                  className="mt-3 align-self-start bg-gray-900 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-gray-800 transition shadow-sm w-fit disabled:opacity-50"
+                >
+                  {loading
+                    ? "Generating..."
+                    : "✨ Generate Description with AI"}
+                </button>
+              </div>
+
+              {/* Title Input */}
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full border border-gray-300 p-4 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition"
+                  placeholder="e.g. Lost Black Wallet Near Library"
+                />
+                <button
+                  onClick={generateTitle}
+                  disabled={loading}
+                  className="mt-3 align-self-start bg-gray-100 text-gray-900 border border-gray-300 px-5 py-2.5 rounded-lg font-medium hover:bg-gray-200 transition shadow-sm w-fit disabled:opacity-50"
+                >
+                  {loading ? "Generating..." : "💡 Generate Title"}
+                </button>
+              </div>
+
+              <div className="pt-4 mt-6 border-t border-gray-100">
+                <button className="w-full bg-black text-white px-6 py-4 rounded-xl font-bold shadow-md hover:bg-gray-800 transition">
+                  Submit Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. FEATURES SECTION */}
       <section className="mt-40 px-6 max-w-5xl mx-auto w-full">
