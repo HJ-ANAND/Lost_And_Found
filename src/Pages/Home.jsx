@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 const API_KEY = "PUT_YOUR_API_KEY";
 
 function Home() {
-  const [showForm, setShowForm] = useState(false);
+  const [formType, setFormType] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: "Rewrite this into a proper, clear, and detailed lost item description. Don't include formatting like markdown: " + description }] }],
+            contents: [{ parts: [{ text: `Rewrite this into a proper, clear, and detailed ${formType} item description. Don't include formatting like markdown: ` + description }] }],
           }),
         }
       );
@@ -44,7 +44,7 @@ function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: "Generate a short, catchy, and clean title (max 6-8 words) for this lost item description. Provide only the title, no quotes or extra text: " + description }] }],
+            contents: [{ parts: [{ text: `Generate a short, catchy, and clean title (max 6-8 words) for this ${formType} item description. Provide only the title, no quotes or extra text: ` + description }] }],
           }),
         }
       );
@@ -82,8 +82,8 @@ function Home() {
             </p>
             <div className="flex flex-wrap gap-3.5 mb-8">
               <button className="bg-[#0B1528] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#0B1528]/25 hover:-translate-y-1 hover:bg-[#152342] transition-all duration-300">Search Item</button>
-              <button onClick={() => setShowForm(true)} className="bg-[#2D3E56] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#2D3E56]/20 hover:-translate-y-1 hover:bg-[#3B4D68] transition-all duration-300">Report Lost</button>
-              <button className="bg-[#5cb9a5] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#5cb9a5]/30 hover:-translate-y-1 hover:bg-[#4ea693] transition-all duration-300">Report Found</button>
+              <button onClick={() => setFormType('lost')} className="bg-[#2D3E56] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#2D3E56]/20 hover:-translate-y-1 hover:bg-[#3B4D68] transition-all duration-300">Report Lost</button>
+              <button onClick={() => setFormType('found')} className="bg-[#5cb9a5] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#5cb9a5]/30 hover:-translate-y-1 hover:bg-[#4ea693] transition-all duration-300">Report Found</button>
             </div>
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2 text-[14px] text-slate-500 font-medium">
@@ -270,10 +270,10 @@ function Home() {
             </p>
           </div>
           <div className="relative z-10 flex flex-col sm:flex-row gap-4 shrink-0">
-            <button className="bg-[#5cb9a5] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#5cb9a5]/30 hover:-translate-y-1 hover:bg-[#4ea693] transition-all duration-300 whitespace-nowrap">
-              Start Finding Now
+            <button onClick={() => setFormType('found')} className="bg-[#5cb9a5] text-white px-9 py-4 rounded-full font-bold text-[15px] shadow-xl shadow-[#5cb9a5]/30 hover:-translate-y-1 hover:bg-[#4ea693] transition-all duration-300 whitespace-nowrap">
+              Report Found Item
             </button>
-            <button onClick={() => setShowForm(true)} className="bg-white/10 border border-white/20 text-white px-9 py-4 rounded-full font-bold text-[15px] hover:-translate-y-1 hover:bg-white/20 transition-all duration-300 whitespace-nowrap">
+            <button onClick={() => setFormType('lost')} className="bg-white/10 border border-white/20 text-white px-9 py-4 rounded-full font-bold text-[15px] hover:-translate-y-1 hover:bg-white/20 transition-all duration-300 whitespace-nowrap">
               Report Lost Item
             </button>
           </div>
@@ -283,27 +283,27 @@ function Home() {
       {/* ══════════════════════════════════════════════════════
           AI REPORT MODAL
       ══════════════════════════════════════════════════════ */}
-      {showForm && (
+      {formType && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
           <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl border border-white/20 overflow-hidden">
             <div className="p-10">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-extrabold text-[#0B1528] tracking-tight">Report a Lost Item</h2>
-                <button onClick={() => setShowForm(false)} className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+                <h2 className="text-3xl font-extrabold text-[#0B1528] tracking-tight">{formType === 'lost' ? 'Report a Lost Item' : 'Report a Found Item'}</h2>
+                <button onClick={() => setFormType(null)} className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
                 </button>
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col">
-                  <label className="text-sm font-bold text-slate-700 mb-3">What did you lose? <span className="text-slate-400 font-normal ml-1">(Brief description)</span></label>
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border-2 border-slate-100 bg-slate-50/50 p-5 rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-[#5cb9a5] focus:bg-white outline-none transition-all resize-none min-h-[140px] text-slate-800" placeholder="e.g. black leather wallet near the central library yesterday around 4 PM..." />
+                  <label className="text-sm font-bold text-slate-700 mb-3">{formType === 'lost' ? 'What did you lose?' : 'What did you find?'} <span className="text-slate-400 font-normal ml-1">(Brief description)</span></label>
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border-2 border-slate-100 bg-slate-50/50 p-5 rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-[#5cb9a5] focus:bg-white outline-none transition-all resize-none min-h-[140px] text-slate-800" placeholder={formType === 'lost' ? "e.g. black leather wallet near the central library yesterday around 4 PM..." : "e.g. found a black leather wallet near the central library today..."} />
                   <button onClick={generateDescription} disabled={loading} className="mt-4 self-start bg-[#0B1528] text-white px-7 py-3.5 rounded-full font-semibold hover:bg-[#152342] transition-colors shadow-lg disabled:opacity-50 flex items-center gap-2">
                     {loading ? "Generating..." : "✨ Refine with AI"}
                   </button>
                 </div>
                 <div className="flex flex-col pt-2">
                   <label className="text-sm font-bold text-slate-700 mb-3">Title</label>
-                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border-2 border-slate-100 bg-slate-50/50 p-5 rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-[#5cb9a5] focus:bg-white outline-none transition-all text-slate-800" placeholder="e.g. Lost Black Leather Wallet" />
+                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border-2 border-slate-100 bg-slate-50/50 p-5 rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-[#5cb9a5] focus:bg-white outline-none transition-all text-slate-800" placeholder={formType === 'lost' ? "e.g. Lost Black Leather Wallet" : "e.g. Found Black Leather Wallet"} />
                   <button onClick={generateTitle} disabled={loading} className="mt-4 self-start bg-teal-50 text-[#3b5e5a] border border-teal-200 px-7 py-3.5 rounded-full font-semibold hover:bg-teal-100 transition-colors disabled:opacity-50 flex items-center gap-2">
                     {loading ? "Generating..." : "💡 Auto-Generate Title"}
                   </button>
