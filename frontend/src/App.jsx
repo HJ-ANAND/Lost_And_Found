@@ -11,16 +11,16 @@ import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 function App() {
   return (
     <BrowserRouter>
-      {/* Global Background Blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-[#eef5f3]">
-        <div className="absolute top-[-20%] left-[-15%] w-[1000px] h-[1000px] bg-[#e1c5ff] opacity-40 rounded-full blur-[140px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[1200px] h-[1200px] bg-[#9ee8d6] opacity-40 rounded-full blur-[160px]"></div>
-        <div className="absolute top-[20%] right-[10%] w-[600px] h-[600px] bg-[#bfdffd] opacity-30 rounded-full blur-[120px]"></div>
+      {/* Global Dark Mesh Background Blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-[#030712]">
+        <div className="absolute top-[-20%] left-[-15%] w-[1000px] h-[1000px] bg-indigo-600/20 opacity-40 rounded-full blur-[140px] animate-pulse-glow"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[1200px] h-[1200px] bg-teal-600/20 opacity-40 rounded-full blur-[160px] animate-float-slow"></div>
+        <div className="absolute top-[30%] right-[20%] w-[600px] h-[600px] bg-emerald-500/10 opacity-30 rounded-full blur-[120px] animate-spin-slow"></div>
       </div>
 
       <div className="relative z-10 w-full min-h-screen mx-auto overflow-x-hidden flex flex-col">
         <NavBar />
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full flex flex-col mt-4">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
