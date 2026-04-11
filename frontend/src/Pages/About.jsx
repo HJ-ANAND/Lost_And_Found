@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 function About() {
   return (
-    <div className="w-full relative overflow-hidden font-sans text-slate-800 bg-[#f8fafc] pb-32 pt-36 md:pt-44 min-h-screen">
+    <div className="w-full relative overflow-hidden font-sans text-slate-800 pb-32 pt-36 md:pt-44 min-h-screen flex flex-col">
       {/* ── INLINE STYLES FOR CONSISTENCY ── */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes fadeUp {
@@ -15,11 +15,11 @@ function About() {
         }
         .text-outline {
           color: transparent;
-          -webkit-text-stroke: 1px rgba(11, 21, 40, 0.03);
+          -webkit-text-stroke: 1px rgba(11, 21, 40, 0.08);
         }
         .text-outline-teal {
           color: transparent;
-          -webkit-text-stroke: 1px rgba(92, 185, 165, 0.08);
+          -webkit-text-stroke: 1px rgba(92, 185, 165, 0.25);
         }
         .pulse-dot {
           animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -31,10 +31,10 @@ function About() {
       `}} />
 
       {/* Large Faded Background Typography */}
-      <span className="absolute top-[12%] left-[-2%] text-[clamp(6rem,15vw,12rem)] font-black text-outline pointer-events-none select-none -rotate-12 z-0">ABOUT</span>
-      <span className="absolute top-[42%] right-[-2%] text-[clamp(4rem,10vw,10rem)] font-black text-outline-teal pointer-events-none select-none rotate-6 z-0">MISSION</span>
-      <span className="absolute top-[72%] left-[2%] text-[clamp(6rem,15vw,12rem)] font-black text-outline pointer-events-none select-none -rotate-6 z-0">COMMUNITY</span>
-      <span className="absolute bottom-[5%] right-[5%] text-[clamp(4rem,10vw,8rem)] font-black text-outline-teal pointer-events-none select-none z-0">IMPACT</span>
+      <span className="absolute top-[12%] left-[-2%] text-[clamp(6rem,15vw,12rem)] font-black text-outline pointer-events-none select-none -rotate-12 z-0 opacity-60">ABOUT</span>
+      <span className="absolute top-[42%] right-[-2%] text-[clamp(4rem,10vw,10rem)] font-black text-outline-teal pointer-events-none select-none rotate-6 z-0 opacity-50">MISSION</span>
+      <span className="absolute top-[72%] left-[2%] text-[clamp(6rem,15vw,12rem)] font-black text-outline pointer-events-none select-none -rotate-6 z-0 opacity-60">COMMUNITY</span>
+      <span className="absolute bottom-[5%] right-[5%] text-[clamp(4rem,10vw,8rem)] font-black text-outline-teal pointer-events-none select-none z-0 opacity-50">IMPACT</span>
 
       <div className="relative z-10 flex flex-col items-center w-full">
         {/* ══════════════════════════════════════════════════════
