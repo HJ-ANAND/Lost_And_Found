@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const API_KEY = import.meta.env.VITE_HF_KEY;
 
 function AppPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,12 +39,19 @@ function AppPage() {
     setLoadingDesc(true);
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`,
+        "https://router.huggingface.co/v1/chat/completions",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json" 
+          },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `Rewrite this into a proper, clear, and detailed ${formType} item description. Don't include formatting like markdown: ` + description }] }],
+            model: "meta-llama/Meta-Llama-3-8B-Instruct:fastest",
+            messages: [
+              { role: "user", content: `Rewrite this into a proper, clear, and detailed ${formType} item description. Don't include formatting like markdown: ` + description }
+            ],
+            max_tokens: 500,
           }),
         },
       );
@@ -53,8 +60,8 @@ function AppPage() {
         console.error("API Error:", data);
         return;
       }
-      if (data.candidates?.length > 0)
-        setDescription(data.candidates[0].content.parts[0].text);
+      if (data.choices?.length > 0)
+        setDescription(data.choices[0].message.content);
       else alert("Failed to generate description.");
     } catch (e) {
       alert("Error generating description.");
@@ -71,12 +78,19 @@ function AppPage() {
     setLoadingTitle(true);
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`,
+        "https://router.huggingface.co/v1/chat/completions",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json" 
+          },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `Generate a short, catchy, and clean title (max 6-8 words) for this ${formType} item description. Provide only the title, no quotes or extra text: ` + description }] }],
+            model: "meta-llama/Meta-Llama-3-8B-Instruct:fastest",
+            messages: [
+              { role: "user", content: `Generate a short, catchy, and clean title (max 6-8 words) for this ${formType} item description. Provide only the title, no quotes or extra text: ` + description }
+            ],
+            max_tokens: 100,
           }),
         },
       );
@@ -85,8 +99,8 @@ function AppPage() {
         console.error("API Error:", data);
         return;
       }
-      if (data.candidates?.length > 0)
-        setTitle(data.candidates[0].content.parts[0].text);
+      if (data.choices?.length > 0)
+        setTitle(data.choices[0].message.content);
       else alert("Failed to generate title.");
     } catch (e) {
       alert("Error generating title.");
