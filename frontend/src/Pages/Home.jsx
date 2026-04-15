@@ -27,8 +27,9 @@ function App() {
   const generateDescription = async () => {
     if (!description.trim()) return;
     setLoadingDesc(true);
-    try {
-      const response = await fetch(
+
+    const tryFetch = async (modelName) => {
+      return await fetch(
         "https://router.huggingface.co/v1/chat/completions",
         {
           method: "POST",
@@ -37,7 +38,7 @@ function App() {
             "Content-Type": "application/json" 
           },
           body: JSON.stringify({
-            model: "meta-llama/Meta-Llama-3-8B-Instruct:fastest",
+            model: modelName,
             messages: [
               { role: "user", content: `Rewrite this into a proper, clear, and detailed ${formType} item description. Don't include formatting like markdown: ` + description }
             ],
@@ -45,15 +46,26 @@ function App() {
           }),
         },
       );
+    };
+
+    try {
+      let response = await tryFetch("meta-llama/Meta-Llama-3-8B-Instruct:fastest");
+      
+      if (!response.ok) {
+        console.warn("Primary model failed, trying fallback...");
+        response = await tryFetch("meta-llama/Meta-Llama-3-8B-Instruct");
+      }
+
       const data = await response.json();
       if (!response.ok) {
-        console.error("API Error:", data);
+        console.error("API Error (Full):", JSON.stringify(data, null, 2));
         return;
       }
       if (data.choices?.length > 0)
         setDescription(data.choices[0].message.content);
       else alert("Failed to generate description.");
     } catch (e) {
+      console.error("Fetch Error:", e);
       alert("Error generating description.");
     } finally {
       setLoadingDesc(false);
@@ -66,8 +78,9 @@ function App() {
       return;
     }
     setLoadingTitle(true);
-    try {
-      const response = await fetch(
+
+    const tryFetch = async (modelName) => {
+      return await fetch(
         "https://router.huggingface.co/v1/chat/completions",
         {
           method: "POST",
@@ -76,7 +89,7 @@ function App() {
             "Content-Type": "application/json" 
           },
           body: JSON.stringify({
-            model: "meta-llama/Meta-Llama-3-8B-Instruct:fastest",
+            model: modelName,
             messages: [
               { role: "user", content: `Generate a short, catchy, and clean title (max 6-8 words) for this ${formType} item description. Provide only the title, no quotes or extra text: ` + description }
             ],
@@ -84,15 +97,26 @@ function App() {
           }),
         },
       );
+    };
+
+    try {
+      let response = await tryFetch("meta-llama/Meta-Llama-3-8B-Instruct:fastest");
+      
+      if (!response.ok) {
+        console.warn("Primary model failed, trying fallback...");
+        response = await tryFetch("meta-llama/Meta-Llama-3-8B-Instruct");
+      }
+
       const data = await response.json();
       if (!response.ok) {
-        console.error("API Error:", data);
+        console.error("API Error (Full):", JSON.stringify(data, null, 2));
         return;
       }
       if (data.choices?.length > 0)
         setTitle(data.choices[0].message.content);
       else alert("Failed to generate title.");
     } catch (e) {
+      console.error("Fetch Error:", e);
       alert("Error generating title.");
     } finally {
       setLoadingTitle(false);
