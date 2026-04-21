@@ -57,18 +57,18 @@ function ChatWindow({ matchId, userId, onClose, itemTitle }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-end md:p-6 pointer-events-none">
-      <div className="w-full max-w-md h-full md:h-[600px] bg-white shadow-2xl rounded-none md:rounded-[2.5rem] flex flex-col pointer-events-auto animate-in slide-in-from-right duration-500 border border-slate-100 overflow-hidden">
-        
+    <div className="fixed inset-0 z-300 flex items-center justify-end md:p-6 pointer-events-none">
+      <div className="w-full max-w-md h-full md:h-150 bg-white shadow-2xl rounded-none md:rounded-[2.5rem] flex flex-col pointer-events-auto animate-in slide-in-from-right duration-500 border border-slate-100 overflow-hidden">
+
         {/* Header */}
         <div className="bg-[#0B1528] p-6 text-white flex justify-between items-center">
           <div>
             <h3 className="text-lg font-black leading-tight">Chat with Finder/Owner</h3>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">{itemTitle}</p>
           </div>
-          <button 
+          <button
             id="close-chat-btn"
-            onClick={onClose} 
+            onClick={onClose}
             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
@@ -81,9 +81,9 @@ function ChatWindow({ matchId, userId, onClose, itemTitle }) {
             const isMe = msg.senderId === userId;
             return (
               <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] p-4 rounded-[1.5rem] text-sm font-semibold shadow-sm ${
-                  isMe 
-                    ? "bg-[#5cb9a5] text-white rounded-br-none" 
+                <div className={`max-w-[80%] p-4 rounded-3xl text-sm font-semibold shadow-sm ${
+                  isMe
+                    ? "bg-[#5cb9a5] text-white rounded-br-none"
                     : "bg-white text-slate-700 rounded-bl-none border border-slate-100"
                 }`}>
                   {msg.text}
@@ -100,17 +100,17 @@ function ChatWindow({ matchId, userId, onClose, itemTitle }) {
         {/* Input */}
         <form onSubmit={handleSendMessage} className="p-6 bg-white border-t border-slate-100">
           <div className="relative flex items-center gap-3">
-            <input 
+            <input
               id="chat-input-field"
-              type="text" 
+              type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type a message..." 
+              placeholder="Type a message..."
               className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 outline-none focus:border-[#5cb9a5] transition-all font-semibold text-slate-700"
             />
-            <button 
+            <button
               id="send-chat-msg-btn"
-              type="submit" 
+              type="submit"
               className="w-14 h-14 bg-[#5cb9a5] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#5cb9a5]/20 hover:-translate-y-1 transition-all"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
