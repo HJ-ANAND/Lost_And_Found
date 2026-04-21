@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
 function ChatWindow({ matchId, userId, onClose, itemTitle }) {
   const [messages, setMessages] = useState([]);

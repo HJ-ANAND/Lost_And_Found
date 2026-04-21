@@ -7,11 +7,11 @@ const Match = require("./models/matchModel");
 const { getUserEmail } = require("./utils/clerkClient");
 const { sendMatchEmail } = require("./utils/emailService");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 7860;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -53,8 +53,6 @@ io.on("connection", (socket) => {
         getUserEmail(recipientId).then(email => {
           if (email) {
             // Reusing sendMatchEmail or creating a new one
-            // Let's create a generic email function or just reuse the match one with different text
-            // I'll update emailService later to handle chat notifications specifically if needed
           }
         });
       }
@@ -68,6 +66,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server started on port ${PORT}`);
 });

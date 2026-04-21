@@ -11,7 +11,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["match_found", "status_update", "general"],
+    enum: ["match_found", "status_update", "chat_message", "general"],
     default: "general",
   },
   relatedId: {

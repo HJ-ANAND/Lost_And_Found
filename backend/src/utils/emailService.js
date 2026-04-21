@@ -43,7 +43,7 @@ const sendMatchEmail = async (toEmail, itemDetails, matchDetails) => {
         </div>
 
         <div style="text-align: center;">
-          <a href="http://localhost:5173/app" style="background-color: #5cb9a5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">View Match Details</a>
+          <a href="${process.env.FRONTEND_URL || 'http://localhost:7860'}/app" style="background-color: #5cb9a5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">View Match Details</a>
         </div>
 
         <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;" />

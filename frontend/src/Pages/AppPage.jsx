@@ -4,7 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import axios from "axios";
 import ChatWindow from "../component/ChatWindow";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 function AppPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,13 +36,24 @@ function AppPage() {
     if (!user) return;
     setIsSyncing(true);
     try {
-      await axios.post(`${API_BASE_URL}/items/sync/${user.id}`);
-      const repRes = await axios.get(`${API_BASE_URL}/items/user/${user.id}`);
+      // Fetch initial data first for speed
+      const [repRes, matchRes, notifRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/items/user/${user.id}`),
+        axios.get(`${API_BASE_URL}/matches/user/${user.id}`),
+        axios.get(`${API_BASE_URL}/notifications/${user.id}`)
+      ]);
+      
       setReports(repRes.data);
-      const matchRes = await axios.get(`${API_BASE_URL}/matches/user/${user.id}`);
       setMatches(matchRes.data);
-      const notifRes = await axios.get(`${API_BASE_URL}/notifications/${user.id}`);
       setNotifications(notifRes.data);
+
+      // Then trigger sync in background
+      axios.post(`${API_BASE_URL}/items/sync/${user.id}`).then(() => {
+        // Silently refresh matches after sync
+        axios.get(`${API_BASE_URL}/matches/user/${user.id}`).then(res => setMatches(res.data));
+        axios.get(`${API_BASE_URL}/notifications/${user.id}`).then(res => setNotifications(res.data));
+      }).catch(err => console.warn("Sync warning:", err));
+
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -263,11 +274,12 @@ function AppPage() {
                 </svg>
               </button>
             </div>
-            
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {matches.map((match) => {
-                const isLostOwner = match.lostItemId.userId === user.id;
+                const isLostOwner = match.lostItemId?.userId === user.id;
                 const otherItem = isLostOwner ? match.foundItemId : match.lostItemId;
+                
+                if (!otherItem) return null; // Skip invalid matches
                 
                 return (
                   <div 

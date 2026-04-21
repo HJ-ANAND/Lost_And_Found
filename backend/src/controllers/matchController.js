@@ -18,7 +18,7 @@ const getUserMatches = async (req, res) => {
 
     const userMatches = matches.filter((match) => {
       return (
-        match.lostItemId.userId === userId || match.foundItemId.userId === userId
+        match.lostItemId?.userId === userId || match.foundItemId?.userId === userId
       );
     });
 
