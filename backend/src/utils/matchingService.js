@@ -5,7 +5,7 @@ const Notification = require("../models/notificationModel");
 const { getUserEmail } = require("./clerkClient");
 const { sendMatchEmail } = require("./emailService");
 
-const MATCH_THRESHOLD = 0.55;
+const MATCH_THRESHOLD = 0.50;
 
 /**
  * Calculates a match score between two items.
