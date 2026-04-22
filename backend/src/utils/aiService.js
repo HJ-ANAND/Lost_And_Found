@@ -19,12 +19,18 @@ const generateEnhancedContent = async (rawDescription, type) => {
         Your task:
         1. Rewrite the description to be clear, professional, and detailed. Focus ONLY on describing the item itself — its physical appearance, brand, color, condition, distinguishing features, and where/when it was lost or found.
         2. Generate a short, catchy title (max 6-8 words).
-        3. Extract specific metadata: color, brand, distinctiveMark, and category (e.g., Electronics, Keys, Wallets, Pets).
+        3. Extract specific metadata: color, brand, distinctiveMark, and category.
 
-        CRITICAL RULES:
-        - Do NOT include any advisory, instructional, or action-oriented text in the description such as "report to the nearest lost and found desk", "contact the lost and found department", "if found please return to", "please hand it over to authorities", or similar phrases.
+        CRITICAL RULES FOR CATEGORY:
+        - Category must be SPECIFIC to the exact type of item. Use precise subcategories, NOT broad groups.
+        - Good examples: "Wallet", "Watch", "Earphones", "Phone Charger", "Water Bottle", "Shuttlecock", "Shoes", "Smartphone", "Laptop", "Sunglasses", "Backpack", "Umbrella", "ID Card", "Keys", "Ring", "Necklace", "Chain"
+        - BAD examples (too broad): "Electronics", "Accessories", "Personal Items", "Sports Equipment", "Miscellaneous"
+        - A "charger" and a "smartphone" are DIFFERENT categories even though both are electronics. A "watch" and "earphones" are DIFFERENT categories.
+        - Category must NEVER be empty. Always provide a specific category.
+
+        CRITICAL RULES FOR DESCRIPTION:
+        - Do NOT include any advisory, instructional, or action-oriented text such as "report to the nearest lost and found desk", "contact the lost and found department", "if found please return to", "please hand it over to authorities", or similar phrases.
         - The description must ONLY contain factual details about the item itself. No instructions, no advice, no calls to action.
-        - Keep the category to a single standard word (e.g., "Electronics", "Keys", "Wallet", "Bag", "Clothing", "Jewelry", "Pets", "Documents", "Accessories", "Other").
 
         Strictly return your response as a JSON object with this exact structure:
         {

@@ -5,32 +5,33 @@ const Notification = require("../models/notificationModel");
 const { getUserEmail } = require("./clerkClient");
 const { sendMatchEmail } = require("./emailService");
 
-const MATCH_THRESHOLD = 0.5;
+const MATCH_THRESHOLD = 0.55;
 
 /**
  * Calculates a match score between two items.
  * 
  * Scoring weights (total = 1.0):
- *   Category match:  25%  (exact/fuzzy from AI metadata)
- *   Title similarity: 20%  (short, consistent AI-generated titles)
- *   Description sim:  15%  (long AI text — can diverge, weighted lower)
+ *   Category match:  25%  (specific AI metadata — e.g. "Wallet", "Watch")
+ *   Title similarity: 25%  (short, consistent AI-generated titles)
+ *   Description sim:  10%  (long AI text can diverge — weighted lowest)
  *   Color match:      15%  (structured metadata)
  *   Location sim:     15%  (user-entered, usually consistent)
  *   Brand match:      10%  (structured metadata)
  * 
  * @param {Object} reportA - The new report
  * @param {Object} reportB - An existing report from DB
- * @returns {Number} Score from 0 to 1
+ * @returns {{ score: Number, breakdown: Object }}
  */
 const calculateScore = (reportA, reportB) => {
   let score = 0;
   const breakdown = {};
 
-  // 1. Category — must match or it's a dealbreaker (25%)
+  // 1. Category — HARD GATE: must match or reject
   const catA = (reportA.extractedDetails?.category || "").toLowerCase().trim();
   const catB = (reportB.extractedDetails?.category || "").toLowerCase().trim();
 
   if (catA && catB) {
+    // Both have categories — use fuzzy match
     const catSimilarity = stringSimilarity.compareTwoStrings(catA, catB);
     breakdown.category = catSimilarity;
     if (catSimilarity >= 0.5) {
@@ -40,21 +41,33 @@ const calculateScore = (reportA, reportB) => {
       return { score: 0, breakdown };
     }
   } else {
-    breakdown.category = "skipped (empty)";
+    // One or both categories missing — use TITLE similarity as fallback gate
+    // Titles like "Black Nike Wallet Lost" vs "Wristwatch Found" have very low similarity
+    // so this prevents cross-category false positives
+    const titleA = reportA.title.toLowerCase();
+    const titleB = reportB.title.toLowerCase();
+    const titleGate = stringSimilarity.compareTwoStrings(titleA, titleB);
+    breakdown.category = `fallback-title-gate (${titleGate.toFixed(2)})`;
+    if (titleGate >= 0.45) {
+      score += 0.25; // Reward high title similarity as a proxy for same category
+    } else {
+      breakdown.result = `REJECTED (no category + low title similarity ${(titleGate * 100).toFixed(0)}%)`;
+      return { score: 0, breakdown };
+    }
   }
 
-  // 2. Title Similarity — short, consistent AI titles (20%)
+  // 2. Title Similarity (25%)
   const titleA = reportA.title.toLowerCase();
   const titleB = reportB.title.toLowerCase();
   const titleSim = stringSimilarity.compareTwoStrings(titleA, titleB);
-  score += titleSim * 0.2;
+  score += titleSim * 0.25;
   breakdown.title = titleSim;
 
-  // 3. Description Similarity — can diverge due to AI rewriting (15%)
+  // 3. Description Similarity (10% — weighted low since AI rewrites diverge)
   const descA = reportA.description.toLowerCase();
   const descB = reportB.description.toLowerCase();
   const descSim = stringSimilarity.compareTwoStrings(descA, descB);
-  score += descSim * 0.15;
+  score += descSim * 0.1;
   breakdown.description = descSim;
 
   // 4. Color Similarity (15%)
@@ -104,8 +117,6 @@ const findMatches = async (newReport) => {
     const targetType = newReport.type === "lost" ? "found" : "lost";
 
     // Query all opposite-type active items from other users.
-    // Category filtering is handled by calculateScore() with fuzzy matching,
-    // since AI-generated categories can vary (e.g. "Wallets" vs "Wallet").
     const candidates = await ItemReport.find({
       type: targetType,
       userId: { $ne: newReport.userId },
@@ -117,8 +128,8 @@ const findMatches = async (newReport) => {
     for (const candidate of candidates) {
       const { score, breakdown } = calculateScore(newReport, candidate);
 
-      // Log top candidates for debugging (scores above 0.3)
-      if (score >= 0.3) {
+      // Log candidates that pass at least the category/title gate (score > 0)
+      if (score > 0) {
         console.log(`[Match]   📊 "${newReport.title}" vs "${candidate.title}" → ${Math.round(score * 100)}%`, JSON.stringify(breakdown));
       }
 
